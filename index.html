@@ -2,490 +2,174 @@
 <html lang="zh">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>生日快乐 何敏</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<meta charset="UTF-8">
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #020210;
+      overflow: hidden;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
 
-<meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1">
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
 
-<title>生日快乐</title>
+    #stars {
+      z-index: 1
+    }
 
-<style>
+    #fireworks {
+      z-index: 2
+    }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+    #particles {
+      z-index: 3
+    }
 
-html,body{
+    #startBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 18px 40px;
+      font-size: 24px;
+      color: white;
+      border-radius: 50px;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      z-index: 10;
+    }
 
-width:100%;
-height:100%;
-
-background:#020210;
-
-overflow:hidden;
-
-font-family:
-"PingFang SC",
-"Microsoft YaHei",
-sans-serif;
-
-}
-
-/* canvas */
-
-canvas{
-
-position:fixed;
-
-top:0;
-left:0;
-
-width:100%;
-height:100%;
-
-pointer-events:none;
-
-}
-
-/* layer */
-
-#stars{z-index:1}
-#hearts{z-index:2}
-#fireworks{z-index:3}
-
-/* start button */
-
-#startBtn{
-
-position:absolute;
-
-top:50%;
-left:50%;
-
-transform:translate(-50%,-50%);
-
-padding:18px 40px;
-
-font-size:24px;
-
-color:white;
-
-border-radius:50px;
-
-border:2px solid rgba(255,255,255,0.6);
-
-background:rgba(255,255,255,0.1);
-
-backdrop-filter:blur(10px);
-
-cursor:pointer;
-
-z-index:10;
-
-}
-
-/* message */
-
-#message{
-
-position:absolute;
-
-bottom:22%;
-
-width:100%;
-
-text-align:center;
-
-color:white;
-
-font-size:30px;
-
-letter-spacing:3px;
-
-text-shadow:
-
-0 0 10px #fff,
-0 0 20px #fff,
-0 0 40px #fff;
-
-z-index:10;
-
-}
-
-/* cake */
-
-#cake{
-
-position:absolute;
-
-bottom:6%;
-
-left:50%;
-
-transform:translateX(-50%);
-
-font-size:70px;
-
-opacity:0;
-
-transition:2s;
-
-z-index:10;
-
-}
-
-</style>
-
+    #cake {
+      position: absolute;
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 70px;
+      opacity: 0;
+      transition: 2s;
+      z-index: 10;
+    }
+  </style>
 </head>
 
 <body>
-
-<canvas id="stars"></canvas>
-<canvas id="hearts"></canvas>
-<canvas id="fireworks"></canvas>
-
-<div id="message"></div>
-
-<div id="cake">🎂</div>
-
-<button id="startBtn">✨ 点击开启生日惊喜 ✨</button>
-
-<audio id="music" loop preload="auto">
-<source src="wangl.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-
-/* 祝福 */
-
-const lines=[
-
-"生日快乐 何敏",
-
-"四川第一温柔美少女",
-
-"愿所有幸运围绕你",
-
-"愿所有愿望实现",
-
-"愿未来闪闪发光",
-
-"希望你永远快乐"
-
-]
-
-/* canvas */
-
-const stars=document.getElementById("stars")
-const hearts=document.getElementById("hearts")
-const fireworks=document.getElementById("fireworks")
-
-const starCtx=stars.getContext("2d")
-const heartCtx=hearts.getContext("2d")
-const fireCtx=fireworks.getContext("2d")
-
-const btn=document.getElementById("startBtn")
-const msg=document.getElementById("message")
-const cake=document.getElementById("cake")
-const music=document.getElementById("music")
-
-let w,h,dpr
-
-function resize(){
-
-dpr=window.devicePixelRatio||1
-
-w=window.innerWidth
-h=window.innerHeight
-
-;[stars,hearts,fireworks].forEach(c=>{
-
-c.width=w*dpr
-c.height=h*dpr
-
-c.style.width=w+"px"
-c.style.height=h+"px"
-
-})
-
-starCtx.setTransform(dpr,0,0,dpr,0,0)
-heartCtx.setTransform(dpr,0,0,dpr,0,0)
-fireCtx.setTransform(dpr,0,0,dpr,0,0)
-
-}
-
-resize()
-
-/* 星星 */
-
-let starList=[]
-
-for(let i=0;i<150;i++){
-
-starList.push({
-
-x:Math.random()*w,
-y:Math.random()*h,
-size:Math.random()*2,
-speed:Math.random()*0.3
-
-})
-
-}
-
-/* 爱心 */
-
-let heartList=[]
-
-setInterval(()=>{
-
-heartList.push({
-
-x:Math.random()*w,
-y:h+20,
-
-vy:-2-Math.random()*2,
-
-life:200,
-
-size:20+Math.random()*20
-
-})
-
-},900)
-
-/* 烟花 */
-
-class Firework{
-
-constructor(x){
-
-this.x=x
-this.y=h
-
-this.vy=-7-Math.random()*2
-
-this.hue=Math.random()*360
-
-this.exploded=false
-
-this.particles=[]
-
-}
-
-update(){
-
-if(!this.exploded){
-
-this.y+=this.vy
-this.vy+=0.05
-
-if(this.vy>=0){
-
-this.explode()
-
-}
-
-}else{
-
-this.particles.forEach(p=>{
-
-p.x+=p.vx
-p.y+=p.vy
-
-p.vy+=0.05
-
-p.life--
-
-})
-
-this.particles=this.particles.filter(p=>p.life>0)
-
-}
-
-}
-
-explode(){
-
-this.exploded=true
-
-for(let i=0;i<80;i++){
-
-const a=Math.random()*Math.PI*2
-const s=Math.random()*4
-
-this.particles.push({
-
-x:this.x,
-y:this.y,
-
-vx:Math.cos(a)*s,
-vy:Math.sin(a)*s,
-
-life:80
-
-})
-
-}
-
-}
-
-draw(){
-
-if(!this.exploded){
-
-fireCtx.beginPath()
-fireCtx.arc(this.x,this.y,3,0,Math.PI*2)
-fireCtx.fillStyle=`hsl(${this.hue},100%,60%)`
-fireCtx.fill()
-
-}else{
-
-this.particles.forEach(p=>{
-
-fireCtx.beginPath()
-fireCtx.arc(p.x,p.y,2,0,Math.PI*2)
-fireCtx.fillStyle=`hsl(${this.hue},100%,60%)`
-fireCtx.fill()
-
-})
-
-}
-
-}
-
-}
-
-let fireworkList=[]
-
-setInterval(()=>{
-
-fireworkList.push(new Firework(Math.random()*w))
-
-},900)
-
-/* 打字机 */
-
-let lineIndex=0
-let charIndex=0
-
-function typeWriter(){
-
-if(lineIndex>=lines.length){
-
-cake.style.opacity=1
-
-return
-
-}
-
-let text=lines[lineIndex]
-
-msg.innerHTML=text.slice(0,charIndex)
-
-charIndex++
-
-if(charIndex>text.length){
-
-lineIndex++
-
-charIndex=0
-
-setTimeout(typeWriter,1400)
-
-}else{
-
-setTimeout(typeWriter,80)
-
-}
-
-}
-
-/* 动画 */
-
-function animate(){
-
-/* stars */
-
-starCtx.fillStyle="#020210"
-starCtx.fillRect(0,0,w,h)
-
-starList.forEach(s=>{
-
-s.y+=s.speed
-
-if(s.y>h)s.y=0
-
-starCtx.beginPath()
-starCtx.arc(s.x,s.y,s.size,0,Math.PI*2)
-starCtx.fillStyle="white"
-starCtx.fill()
-
-})
-
-/* hearts */
-
-heartCtx.clearRect(0,0,w,h)
-
-heartList.forEach(hh=>{
-
-hh.y+=hh.vy
-
-hh.life--
-
-heartCtx.font=hh.size+"px serif"
-
-heartCtx.fillText("💖",hh.x,hh.y)
-
-})
-
-heartList=heartList.filter(hh=>hh.life>0)
-
-/* fireworks */
-
-fireCtx.clearRect(0,0,w,h)
-
-fireworkList.forEach(f=>{
-
-f.update()
-f.draw()
-
-})
-
-requestAnimationFrame(animate)
-
-}
-
-animate()
-
-/* start */
-
-function start(){
-
-btn.style.display="none"
-
-/* iPhone 音乐兼容 */
-
-music.muted=true
-music.play()
-
-setTimeout(()=>{
-
-music.muted=false
-
-},200)
-
-typeWriter()
-
-}
-
-btn.onclick=start
-
-</script>
-
+  <canvas id="stars"></canvas>
+  <canvas id="fireworks"></canvas>
+  <canvas id="particles"></canvas>
+  <div id="cake">🎂</div>
+  <button id="startBtn">✨ 点击开启生日惊喜 ✨</button>
+  <audio id="music" loop preload="auto">
+    <source src="wangl.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const lines = [
+      "生日快乐 何敏",
+      "四川第一温柔美少女",
+      "愿所有幸运围绕你",
+      "愿所有愿望实现",
+      "愿未来闪闪发光",
+      "希望你永远快乐"
+    ];
+
+    const starsCanvas = document.getElementById("stars");
+    const fireCanvas = document.getElementById("fireworks");
+    const particleCanvas = document.getElementById("particles");
+    const starCtx = starsCanvas.getContext("2d");
+    const fireCtx = fireCanvas.getContext("2d");
+    const particleCtx = particleCanvas.getContext("2d");
+    const btn = document.getElementById("startBtn");
+    const cake = document.getElementById("cake");
+    const music = document.getElementById("music");
+
+    let w, h, dpr = window.devicePixelRatio || 1;
+
+    function resize() {
+      w = window.innerWidth; h = window.innerHeight;
+      [starsCanvas, fireCanvas, particleCanvas].forEach(c => {
+        c.width = w * dpr; c.height = h * dpr; c.style.width = w + "px"; c.style.height = h + "px";
+      });
+      starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fireCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      particleCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize(); window.addEventListener("resize", resize);
+
+    /* 星空 */
+    let starList = []; for (let i = 0; i < 200; i++) { starList.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2, speed: Math.random() * 0.3 }) }
+
+    /* 烟花 */
+    class Firework {
+      constructor(x) {
+        this.x = x; this.y = h; this.vy = -7 - Math.random() * 2; this.hue = Math.random() * 360; this.exploded = false; this.particles = [];
+      }
+      update() {
+        if (!this.exploded) { this.y += this.vy; this.vy += 0.05; if (this.vy >= 0) { this.explode(); } }
+        else { this.particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life-- }); this.particles = this.particles.filter(p => p.life > 0); }
+      }
+      explode() { this.exploded = true; for (let i = 0; i < 100; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * 4; this.particles.push({ x: this.x, y: this.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 80 }) } }
+      draw() {
+        if (!this.exploded) { fireCtx.beginPath(); fireCtx.arc(this.x, this.y, 3, 0, Math.PI * 2); fireCtx.fillStyle = `hsl(${this.hue},100%,60%)`; fireCtx.fill(); }
+        else { this.particles.forEach(p => { fireCtx.beginPath(); fireCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fireCtx.fillStyle = `hsl(${this.hue},100%,60%)`; fireCtx.fill() }); }
+      }
+    }
+
+    let fireworkList = []; setInterval(() => { fireworkList.push(new Firework(Math.random() * w)) }, 800);
+
+    /* 粒子拼字 */
+    let particles = [], targets = [], currentLine = 0;
+    class Particle {
+      constructor(x, y) { this.x = Math.random() * w; this.y = Math.random() * h; this.tx = x; this.ty = y; }
+      update() { this.x += (this.tx - this.x) * 0.05; this.y += (this.ty - this.y) * 0.05; }
+      draw() { particleCtx.fillStyle = "#66ccff"; particleCtx.fillRect(this.x, this.y, 2, 2); }
+    }
+    function generateLineParticles(text) {
+      particles = []; targets = [];
+      const temp = document.createElement("canvas"); const tctx = temp.getContext("2d");
+      temp.width = w; temp.height = h; tctx.fillStyle = "white"; const fontSize = Math.min(w / 10, 70); tctx.font = `bold ${fontSize}px PingFang SC`; tctx.textAlign = "center"; tctx.textBaseline = "middle";
+      tctx.fillText(text, w / 2, h / 2); const data = tctx.getImageData(0, 0, w, h).data;
+      for (let y = 0; y < h; y += 6) { for (let x = 0; x < w; x += 6) { let i = (y * w + x) * 4; if (data[i + 3] > 128) { particles.push(new Particle(x, y)) } } }
+    }
+    function nextLine() {
+      if (currentLine >= lines.length) { cake.style.opacity = 1; return; }
+      generateLineParticles(lines[currentLine]); currentLine++; setTimeout(nextLine, 3000);
+    }
+
+    /* 动画 */
+    function animate() {
+      starCtx.fillStyle = "#020210"; starCtx.fillRect(0, 0, w, h); starList.forEach(s => { s.y += s.speed; if (s.y > h) s.y = 0; starCtx.beginPath(); starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2); starCtx.fillStyle = "white"; starCtx.fill(); });
+      fireCtx.clearRect(0, 0, w, h); fireworkList.forEach(f => { f.update(); f.draw(); });
+      particleCtx.clearRect(0, 0, w, h); particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    /* start */
+    btn.onclick = function () {
+      btn.style.display = "none";
+      music.muted = true; music.play(); setTimeout(() => { music.muted = false; }, 200);
+      nextLine();
+    }
+  </script>
 </body>
 
 </html>

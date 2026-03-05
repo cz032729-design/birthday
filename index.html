@@ -67,6 +67,9 @@
       opacity: 0;
       transition: 2s;
       z-index: 10;
+      text-align: center;
+      color: white;
+      text-shadow: 0 0 20px #66ccff, 0 0 40px #66ccff, 0 0 60px #66ccff;
     }
   </style>
 </head>
@@ -115,7 +118,8 @@
     resize(); window.addEventListener("resize", resize);
 
     /* 星空 */
-    let starList = []; for (let i = 0; i < 200; i++) { starList.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2, speed: Math.random() * 0.3 }) }
+    let starList = [];
+    for (let i = 0; i < 200; i++) { starList.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2, speed: Math.random() * 0.3 }) }
 
     /* 烟花 */
     class Firework {
@@ -135,28 +139,37 @@
 
     let fireworkList = []; setInterval(() => { fireworkList.push(new Firework(Math.random() * w)) }, 800);
 
-    /* 粒子拼字 */
-    let particles = [], targets = [], currentLine = 0;
+    /* 粒子文字 */
+    let particles = [], currentLine = 0;
     class Particle {
-      constructor(x, y) { this.x = Math.random() * w; this.y = Math.random() * h; this.tx = x; this.ty = y; }
-      update() { this.x += (this.tx - this.x) * 0.05; this.y += (this.ty - this.y) * 0.05; }
-      draw() { particleCtx.fillStyle = "#66ccff"; particleCtx.fillRect(this.x, this.y, 2, 2); }
+      constructor(x, y) { this.x = Math.random() * w; this.y = Math.random() * h; this.tx = x; this.ty = y; this.vx = 0; this.vy = 0; }
+      update() { this.vx += (this.tx - this.x) * 0.1; this.vy += (this.ty - this.y) * 0.1; this.x += this.vx; this.y += this.vy; this.vx *= 0.85; this.vy *= 0.85; }
+      draw() { particleCtx.shadowColor = "#66ccff"; particleCtx.shadowBlur = 4; particleCtx.fillStyle = "#66ccff"; particleCtx.fillRect(this.x, this.y, 3, 3); particleCtx.shadowBlur = 0; }
+      scatter() { this.x += Math.random() * 50 - 25; this.y += Math.random() * 50 - 25; }
     }
     function generateLineParticles(text) {
-      particles = []; targets = [];
+      particles = [];
       const temp = document.createElement("canvas"); const tctx = temp.getContext("2d");
-      temp.width = w; temp.height = h; tctx.fillStyle = "white"; const fontSize = Math.min(w / 10, 70); tctx.font = `bold ${fontSize}px PingFang SC`; tctx.textAlign = "center"; tctx.textBaseline = "middle";
-      tctx.fillText(text, w / 2, h / 2); const data = tctx.getImageData(0, 0, w, h).data;
-      for (let y = 0; y < h; y += 6) { for (let x = 0; x < w; x += 6) { let i = (y * w + x) * 4; if (data[i + 3] > 128) { particles.push(new Particle(x, y)) } } }
+      temp.width = w; temp.height = h; tctx.fillStyle = "white";
+      let fontSize = Math.min(w / 8, 70);
+      tctx.font = `bold ${fontSize}px PingFang SC`; tctx.textAlign = "center"; tctx.textBaseline = "middle";
+      tctx.fillText(text, w / 2, h / 2);
+      const data = tctx.getImageData(0, 0, w, h).data;
+      let step = w < 400 ? 3 : 5;
+      for (let y = 0; y < h; y += step) { for (let x = 0; x < w; x += step) { let i = (y * w + x) * 4; if (data[i + 3] > 128) { particles.push(new Particle(x, y)) } } }
     }
     function nextLine() {
       if (currentLine >= lines.length) { cake.style.opacity = 1; return; }
       generateLineParticles(lines[currentLine]); currentLine++; setTimeout(nextLine, 3000);
     }
 
+    /* 触屏互动 */
+    particleCanvas.addEventListener("click", () => { particles.forEach(p => p.scatter()); });
+
     /* 动画 */
     function animate() {
-      starCtx.fillStyle = "#020210"; starCtx.fillRect(0, 0, w, h); starList.forEach(s => { s.y += s.speed; if (s.y > h) s.y = 0; starCtx.beginPath(); starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2); starCtx.fillStyle = "white"; starCtx.fill(); });
+      starCtx.fillStyle = "#020210"; starCtx.fillRect(0, 0, w, h);
+      starList.forEach(s => { s.y += s.speed; if (s.y > h) s.y = 0; starCtx.beginPath(); starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2); starCtx.fillStyle = "white"; starCtx.fill(); });
       fireCtx.clearRect(0, 0, w, h); fireworkList.forEach(f => { f.update(); f.draw(); });
       particleCtx.clearRect(0, 0, w, h); particles.forEach(p => { p.update(); p.draw(); });
       requestAnimationFrame(animate);

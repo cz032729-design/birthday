@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-  <title>生日快乐 何敏</title>
+  <title>生日快乐</title>
   <style>
     * {
       margin: 0;
@@ -69,7 +69,7 @@
       z-index: 10;
       text-align: center;
       color: white;
-      text-shadow: 0 0 20px #66ccff, 0 0 40px #66ccff, 0 0 60px #66ccff;
+      /* text-shadow: 0 0 20px #66ccff, 0 0 40px #66ccff, 0 0 60px #66ccff; */
     }
   </style>
 </head>
@@ -78,22 +78,30 @@
   <canvas id="stars"></canvas>
   <canvas id="fireworks"></canvas>
   <canvas id="particles"></canvas>
-  <div id="cake">🎂</div>
-  <button id="startBtn">✨ 点击开启生日惊喜 ✨</button>
+  <div id="cake">🎁</div>
+  <button id="startBtn">点击开启生日惊喜</button>
   <audio id="music" loop preload="auto">
     <source src="wangl.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     const lines = [
-      "先祝你生日快乐",
+      "祝你生日快乐",
       "四川第一温柔",
       "美少女",
-      "愿所有幸运围绕你",
-      "愿所有愿望实现",
-      "愿未来闪闪发光",
-      "感谢你的出现",
-      "希望你永远快乐"
+      "愿所有幸运",
+      "围绕你",
+      "愿所有愿望",
+      "都实现",
+      "愿未来的你",
+      "闪闪发光",
+      "谢谢你",
+      "路过我的世界",
+      "希望你",
+      "一直快乐",
+      "下面是为你",
+      "准备的礼物",
+      "点开看看吧"
     ];
 
     const starsCanvas = document.getElementById("stars");

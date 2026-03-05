@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>生日快乐，小可爱！</title>
+  <title>生日快乐，何敏！</title>
   <style>
     * {
       margin: 0;
@@ -151,7 +151,7 @@
         return count;
       }
 
-      // ---------- 更新尺寸相关变量 ----------
+      // ---------- 更新尺寸相关变量（字体调小版）----------
       function updateSizing() {
         width = window.innerWidth;
         height = window.innerHeight;
@@ -160,13 +160,13 @@
         fireworkCanvas.width = width;
         fireworkCanvas.height = height;
 
-        // 响应式字体：在手机小屏上适当减小字体，确保每行能完整显示
+        // 字体调小：小屏手机 width/12，大屏手机 width/10，最大不超过60px
         if (width < 400) {
-          fontSize = Math.min(40, Math.max(28, Math.floor(width / 10)));
+          fontSize = Math.min(40, Math.max(24, Math.floor(width / 12)));
         } else {
-          fontSize = Math.min(70, Math.max(35, Math.floor(width / 8)));
+          fontSize = Math.min(60, Math.max(32, Math.floor(width / 10)));
         }
-        lineHeight = fontSize * 1.3; // 增加行高，避免文字重叠
+        lineHeight = fontSize * 1.3;
         font = `bold ${fontSize}px "Dancing Script", cursive`;
 
         targetParticleCount = calcTargetParticleCount();
@@ -182,7 +182,7 @@
         }, 200);
       });
 
-      // ---------- 生成单行文字的点阵（自动换行适应屏幕）----------
+      // ---------- 生成单行文字的点阵 ----------
       function generatePointsForLine(lineText, targetCount) {
         const offCanvas = document.createElement('canvas');
         const offCtx = offCanvas.getContext('2d');
@@ -195,14 +195,10 @@
         offCtx.textAlign = 'center';
         offCtx.textBaseline = 'middle';
 
-        // 计算该行垂直位置（确保所有行整体居中）
         const totalHeight = TEXT_LINES.length * lineHeight;
         const startY = (height - totalHeight) / 2 + lineHeight / 2;
         const lineY = startY + currentLineIndex * lineHeight;
 
-        // 绘制文字（Canvas会自动换行吗？不，我们需要手动处理长文本）
-        // 使用 measureText 检测文字宽度，如果超出屏幕宽度则自动缩小字体（但我们已动态调整字体）
-        // 直接绘制整行
         offCtx.fillText(lineText, width / 2, lineY);
 
         const imageData = offCtx.getImageData(0, 0, width, height);

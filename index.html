@@ -139,13 +139,17 @@
       }
 
       reset() {
-        this.x = Math.random() * w;
-        this.y = -50;
-        this.len = 80 + Math.random() * 40; // 拖尾长度
-        this.speed = 2 + Math.random() * 4;
-        this.size = 2;
-        this.angle = Math.PI / 4; // 斜着划过
-        this.active = true;
+
+        /* 从屏幕中间区域生成 */
+        this.x = w * 0.3 + Math.random() * w * 0.4
+        this.y = h * 0.1 + Math.random() * h * 0.2
+
+        this.len = 80 + Math.random() * 40
+        this.speed = 1 + Math.random() * 4
+        this.size = 2
+        this.angle = Math.PI / 3   // 稍微更垂直一点
+        this.active = true
+
       }
 
       update() {
@@ -230,7 +234,19 @@
     let particles = [], currentLine = 0;
     class Particle {
       constructor(x, y) { this.x = Math.random() * w; this.y = Math.random() * h; this.tx = x; this.ty = y; this.vx = 0; this.vy = 0; }
-      update() { this.vx += (this.tx - this.x) * 0.1; this.vy += (this.ty - this.y) * 0.1; this.x += this.vx; this.y += this.vy; this.vx *= 0.85; this.vy *= 0.85; }
+      // update() { this.vx += (this.tx - this.x) * 0.1; this.vy += (this.ty - this.y) * 0.1; this.x += this.vx; this.y += this.vy; this.vx *= 0.85; this.vy *= 0.85; }
+      update() {
+
+        this.vx += (this.tx - this.x) * 0.04
+        this.vy += (this.ty - this.y) * 0.04
+
+        this.x += this.vx
+        this.y += this.vy
+
+        this.vx *= 0.92
+        this.vy *= 0.92
+
+      }
       draw() { particleCtx.shadowColor = "#66ccff"; particleCtx.shadowBlur = 4; particleCtx.fillStyle = "#66ccff"; particleCtx.fillRect(this.x, this.y, 3, 3); particleCtx.shadowBlur = 0; }
       scatter() { this.x += Math.random() * 50 - 25; this.y += Math.random() * 50 - 25; }
     }
@@ -247,7 +263,7 @@
     }
     function nextLine() {
       if (currentLine >= lines.length) { cake.style.opacity = 1; return; }
-      generateLineParticles(lines[currentLine]); currentLine++; setTimeout(nextLine, 3000);
+      generateLineParticles(lines[currentLine]); currentLine++; setTimeout(nextLine, 3800);
     }
 
     /* 触屏互动 */

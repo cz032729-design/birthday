@@ -129,8 +129,56 @@
 
     /* 星空 */
     let starList = [];
-    for (let i = 0; i < 200; i++) { starList.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2, speed: Math.random() * 0.3 }) }
+    for (let i = 0; i < 120; i++) { starList.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2, speed: Math.random() * 0.3 }) }
+    /* 流星 */
+    let meteors = [];
 
+    class Meteor {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * w;
+        this.y = -50;
+        this.len = 80 + Math.random() * 40; // 拖尾长度
+        this.speed = 6 + Math.random() * 4;
+        this.size = 2;
+        this.angle = Math.PI / 4; // 斜着划过
+        this.active = true;
+      }
+
+      update() {
+        this.x += this.speed * Math.cos(this.angle);
+        this.y += this.speed * Math.sin(this.angle);
+
+        if (this.x > w + 100 || this.y > h + 100) {
+          this.active = false;
+        }
+      }
+
+      draw() {
+        let tailX = this.x - Math.cos(this.angle) * this.len;
+        let tailY = this.y - Math.sin(this.angle) * this.len;
+
+        let gradient = starCtx.createLinearGradient(
+          this.x,
+          this.y,
+          tailX,
+          tailY
+        );
+
+        gradient.addColorStop(0, "rgba(255,255,255,1)");
+        gradient.addColorStop(1, "rgba(255,255,255,0)");
+
+        starCtx.beginPath();
+        starCtx.moveTo(this.x, this.y);
+        starCtx.lineTo(tailX, tailY);
+        starCtx.lineWidth = this.size;
+        starCtx.strokeStyle = gradient;
+        starCtx.stroke();
+      }
+    }
     /* 烟花 */
     class Firework {
       constructor(x) {
@@ -140,15 +188,44 @@
         if (!this.exploded) { this.y += this.vy; this.vy += 0.05; if (this.vy >= 0) { this.explode(); } }
         else { this.particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life-- }); this.particles = this.particles.filter(p => p.life > 0); }
       }
-      explode() { this.exploded = true; for (let i = 0; i < 100; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * 4; this.particles.push({ x: this.x, y: this.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 80 }) } }
+      explode() { this.exploded = true; for (let i = 0; i < 80; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * 4; this.particles.push({ x: this.x, y: this.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 80 }) } }
       draw() {
         if (!this.exploded) { fireCtx.beginPath(); fireCtx.arc(this.x, this.y, 3, 0, Math.PI * 2); fireCtx.fillStyle = `hsl(${this.hue},100%,60%)`; fireCtx.fill(); }
-        else { this.particles.forEach(p => { fireCtx.beginPath(); fireCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fireCtx.fillStyle = `hsl(${this.hue},100%,60%)`; fireCtx.fill() }); }
+        else {
+          this.particles.forEach(p => {
+
+            const tailX = p.x - p.vx * 5
+            const tailY = p.y - p.vy * 5
+
+            const gradient = fireCtx.createLinearGradient(
+              p.x,
+              p.y,
+              tailX,
+              tailY
+            )
+
+            gradient.addColorStop(0, `hsl(${this.hue},100%,70%)`)
+            gradient.addColorStop(1, "rgba(255,255,255,0)")
+
+            fireCtx.beginPath()
+            fireCtx.moveTo(p.x, p.y)
+            fireCtx.lineTo(tailX, tailY)
+
+            fireCtx.strokeStyle = gradient
+            fireCtx.lineWidth = 2
+            fireCtx.stroke()
+
+          });
+        }
       }
     }
 
-    let fireworkList = []; setInterval(() => { fireworkList.push(new Firework(Math.random() * w)) }, 800);
-
+    let fireworkList = [];
+    setInterval(() => {
+      if (Math.random() < 0.6) {
+        fireworkList.push(new Firework(Math.random() * w))
+      }
+    }, 2000);
     /* 粒子文字 */
     let particles = [], currentLine = 0;
     class Particle {
@@ -180,6 +257,18 @@
     function animate() {
       starCtx.fillStyle = "#020210"; starCtx.fillRect(0, 0, w, h);
       starList.forEach(s => { s.y += s.speed; if (s.y > h) s.y = 0; starCtx.beginPath(); starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2); starCtx.fillStyle = "white"; starCtx.fill(); });
+      /* 随机生成流星 */
+      if (Math.random() < 0.003) {
+        meteors.push(new Meteor());
+      }
+
+      /* 更新流星 */
+      meteors.forEach(m => {
+        m.update();
+        m.draw();
+      });
+
+      meteors = meteors.filter(m => m.active);
       fireCtx.clearRect(0, 0, w, h); fireworkList.forEach(f => { f.update(); f.draw(); });
       particleCtx.clearRect(0, 0, w, h); particles.forEach(p => { p.update(); p.draw(); });
       requestAnimationFrame(animate);
